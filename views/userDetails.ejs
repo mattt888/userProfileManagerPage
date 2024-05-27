@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Page</title>
+    <style>
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <fieldset>
+        <legend>User Details</legend>
+        <table cellpadding="5" border="1" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th colspan="2">Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% list.forEach(user => { %>
+                    <tr>
+                        <form action="/users/<%=user.id%>" method="post">
+                            <td> <input type="text" name="name" value="<%= user.name %>"> </td>
+                            <td> <input type="text" name="email" value="<%= user.email %>"> </td>
+                            <td> <button type="submit"> Update </button> </td>
+                        </form>
+                        <form action="/delete/<%=user.id%>" method="post">
+                            <td> <button type="submit"> Delete </button> </td>
+                        </form>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </fieldset>
+</body>
+</html>
