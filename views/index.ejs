@@ -29,14 +29,30 @@
         </table>
     </fieldset>
     <br>
+    <% if (errors.length > 0) { %>
+        <% errors.forEach( err => { %>
+            <p> <%= err %> </p>
+        <% }) %>
+    <% } else if (success.length > 0) { %>
+        <% success.forEach( succ => { %>
+            <p> <%= succ %> </p>
+        <% }) %>
+    <% } %>
+
     <fieldset>
         <legend>Registration</legend>
         <form action="/users" method="post">
-            <input type="text" name="name" placeholder="Enter your name">
+            <label for="name">Name:</label>
+            <br>
+            <input type="text" name="name" id="name" placeholder="Enter your name" required value="<%= name %>">
             <br><br>
-            <input type="text" name="email" placeholder="Enter your email address">
+            <label for="email">Email:</label>
+            <br>
+            <input type="text" name="email" id="email" placeholder="Enter your email address" value="<%= email %>" required>
             <br><br>
-            <input type="text" name="password" placeholder="Enter password">
+            <label for="password">Password:</label>
+            <br>
+            <input type="password" name="password" id="password" placeholder="Enter password" required>
             <br><br>
             <button>Submit</button>
         </form>

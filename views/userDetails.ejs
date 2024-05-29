@@ -11,6 +11,17 @@
     </style>
 </head>
 <body>
+    <a href="/users">Main Page</a>
+    <% if (errors.length > 0) { %>
+        <% errors.forEach( err => { %>
+            <p> <%= err %> </p>
+        <% }) %>
+    <% } else if (success.length > 0) { %>
+        <% success.forEach( succ => { %>
+            <p> <%= succ %> </p>
+        <% }) %>
+    <% } %>
+    
     <fieldset>
         <legend>User Details</legend>
         <table cellpadding="5" border="1" cellspacing="0">
@@ -18,6 +29,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Password</th>
                     <th colspan="2">Operation</th>
                 </tr>
             </thead>
@@ -25,8 +37,9 @@
                 <% list.forEach(user => { %>
                     <tr>
                         <form action="/users/<%=user.id%>" method="post">
-                            <td> <input type="text" name="name" value="<%= user.name %>"> </td>
-                            <td> <input type="text" name="email" value="<%= user.email %>"> </td>
+                            <td> <input type="text" name="name" value="<%= user.name %>" placeholder="Enter new name here" required> </td>
+                            <td> <input type="text" name="email" value="<%= user.email %>" placeholder="Enter new email address" required> </td>
+                            <td> <input type="password" name="password" placeholder="Type your password here" required> </td>
                             <td> <button type="submit"> Update </button> </td>
                         </form>
                         <form action="/delete/<%=user.id%>" method="post">
