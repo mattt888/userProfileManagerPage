@@ -54,6 +54,7 @@ app.get('/users', (req,res) => {
                 if (err) {
                     req.flash('error', 'The email address you provided is already in use. Please choose another email address. - Az email cím már használatban van. Válasszon másik email címet.')
                     req.flash('email', email)
+                    req.flash('name', name)
                     return res.redirect("back")
                 }
                 req.flash('success', 'Successful registration - Sikeres regisztráció')
@@ -69,33 +70,73 @@ app.get('/users', (req,res) => {
 })
 
 .post("/users/:id", (req, res) => {
-    const {name, email, password} = req.body
 
-    connection.query("select * from users where id = ?", [req.params.id], (err, results) => {
-        bcrypt.compare( password, results[0].password, (err, compareResults) => {
-            if (compareResults) {
-                connection.query("select id from users where email = ? and id != ? ", [email, req.params.id], (err, result) => {
-                    if (result.length > 0) {
-                        req.flash('error', 'The email address you provided is already in use. Please choose another email address. - Az email cím már használatban van. Válasszon másik email címet.')
-                        return res.redirect("back")
-                    } else {
-                        connection.query("update users set name = ?, email = ? where id = ? limit 1", [name, email, req.params.id], (err, result) => {
-                            if ( err ) {
-                                console.error('Error during update:', err)
-                                return res.end('Error during update:', err.stack)
-                            } else {
-                                req.flash('success', 'Successful update - Sikeres módosítás')
-                                return res.redirect("back")
-                            }
-                        })
-                    }
-                })
-            } else {
-                req.flash('error', 'Incorrect password - Helytelen jelszó')
-                return res.redirect("back")
-            }
+    const {name, email, password} = req.body
+    const userId = req.params.id
+
+    function getUserById(userId) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(results[0])
+                }
+            })
         })
+    }
+    
+    function checkEmailExists(email, userId) {
+        return new Promise((resolve, reject) => {
+            connection.query("select id from users where email = ? and id != ? ", [email, userId], (err, result) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(result.length > 0)
+                }
+            })
+        })
+    }
+
+    function updateUserDetails(name, email, userId) {
+        return new Promise((resolve, reject) => {
+            connection.query('UPDATE users SET name = ?, email = ? WHERE id = ? LIMIT 1', [name, email, userId], (err, results) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve()
+                }
+            });
+        });
+    }
+
+    getUserById(req.params.id)
+    .then(user => {
+        if (!user) {
+            throw new Error('User not found')
+        }
+        return bcrypt.compare(password, user.password)
     })
+    .then(compareResults => {
+        if (!compareResults) {
+            throw new Error('Incorrect password')
+        }
+        return checkEmailExists(email, req.params.id)
+    })
+    .then(emailExists => {
+        if (emailExists) {
+            throw new Error('Email address already in use')
+        }
+        return updateUserDetails(name, email, req.params.id)
+    })
+    .then(() => {
+        req.flash('success', 'Successful update - Sikeres módosítás');
+        res.redirect('back')
+    })
+    .catch(error => {
+        req.flash('error', error.message)
+        res.redirect('back')
+    });
 })
 
 .post("/delete/:id", (req, res) => {
