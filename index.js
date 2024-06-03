@@ -49,17 +49,31 @@ app.get('/users', (req,res) => {
             req.flash('email', email)
             return res.redirect("back")
         }
-        else
-            connection.query("insert into users (name, email, password) values (?,?,?) limit 1", [name, email, hash], function(err, results){
+        else {
+            connection.query("select email from users where email = ?" , [email], (err,result) => {
                 if (err) {
+                    console.error('Error during existing email query:', err)
+                    return res.end('Error during existing email query:', err.stack)
+                }
+                else if (result.length > 0) {
                     req.flash('error', 'The email address you provided is already in use. Please choose another email address. - Az email cím már használatban van. Válasszon másik email címet.')
                     req.flash('email', email)
                     req.flash('name', name)
                     return res.redirect("back")
                 }
-                req.flash('success', 'Successful registration - Sikeres regisztráció')
-                return res.redirect("back")
+                else {
+                    connection.query("insert into users (name, email, password) values (?,?,?) limit 1", [name, email, hash], function(err, results){
+                        if (err) {
+                            console.error('Error during registration:', err)
+                            return res.end('Error during registration:', err.stack)
+                        }
+                        else 
+                        req.flash('success', 'Successful registration - Sikeres regisztráció')
+                        return res.redirect("back")
+                    })
+                }
             })
+        }
     })
 })
 
@@ -85,7 +99,7 @@ app.get('/users', (req,res) => {
             })
         })
     }
-    
+
     function checkEmailExists(email, userId) {
         return new Promise((resolve, reject) => {
             connection.query("select id from users where email = ? and id != ? ", [email, userId], (err, result) => {
