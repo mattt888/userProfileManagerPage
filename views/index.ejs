@@ -8,6 +8,10 @@
         a {
             text-decoration: none;
         }
+        p {
+            margin-top: 4px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -44,16 +48,19 @@
         <form action="/users" method="post">
             <label for="name">Name:</label>
             <br>
-            <input type="text" name="name" id="name" placeholder="Enter your name" required value="<%= name %>">
-            <br><br>
+            <input type="text" name="name" id="name" placeholder="Enter your name"  value="<%= name %>">
+            <p> <%= getFieldError(validatorErrors, 'name') %> </p>
+   
             <label for="email">Email:</label>
             <br>
-            <input type="text" name="email" id="email" placeholder="Enter your email address" value="<%= email %>" required>
-            <br><br>
+            <input type="text" name="email" id="email" placeholder="Enter your email address" value="<%= email %>" >
+            <p> <%= getFieldError(validatorErrors, 'email') %> </p>
+        
             <label for="password">Password:</label>
             <br>
-            <input type="password" name="password" id="password" placeholder="Enter password" required>
-            <br><br>
+            <input type="password" name="password" id="password" placeholder="Enter password" >
+            <p> <%= getFieldError(validatorErrors, 'password') %> </p>
+       
             <button>Submit</button>
         </form>
     </fieldset>
